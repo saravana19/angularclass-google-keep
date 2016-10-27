@@ -1,4 +1,5 @@
 import { Component, Output, EventEmitter } from '@angular/core';
+import { ColorPicker } from './color-picker'
 
 @Component({
   selector: 'note-creator',
@@ -17,7 +18,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
     }
   `],
   template: `
-    <div class="note-creator shadow-2">
+    <div class="note-creator shadow-2" [ngStyle]="{'background-color': newNote.color}">
       <form class="row" (submit)="onCreateNote()">
         <input
           type="text"
@@ -26,7 +27,6 @@ import { Component, Output, EventEmitter } from '@angular/core';
           placeholder="Title"
           class="col-xs-10 title"
           (focus)="toggle(true)"
-          (blur)="toggle(false)"
         >
         <input
           type="text"
@@ -37,6 +37,9 @@ import { Component, Output, EventEmitter } from '@angular/core';
           *ngIf="fullForm"
         >
         <div class="actions col-xs-12 row between-xs">
+          <div class="col-xs-3" *ngIf="fullForm">
+            <color-picker (selected)="selectorColor($event)" [colors]="colors"></color-picker>
+          </div>
           <button
             type="submit"
             class="btn-light"
@@ -51,21 +54,27 @@ import { Component, Output, EventEmitter } from '@angular/core';
 })
 export class NoteCreator {
   @Output() createNote = new EventEmitter();
+  colors: Array<string> = ['#b19cd9', '#ff9691', '#77dd77', '#aec6cf', '#f49ac2', 'white'];
 
   newNote = {
     title: '',
-    value: ''
+    value: '',
+    color: 'white'
   }
 
   fullForm: boolean = false;
 
   onCreateNote() {
-    const {title, value} = this.newNote;
+    const {title, value, color} = this.newNote;
 
     if (title && value) {
-      this.createNote.emit({title, value});
+      this.createNote.emit({title, value, color});
       this.reset();
     }
+  }
+
+  selectorColor(color: string) {
+    this.newNote.color = color;
   }
 
   toggle(value: boolean) {
@@ -75,7 +84,8 @@ export class NoteCreator {
   reset() {
     this.newNote = {
       title: '',
-      value: ''
+      value: '',
+      color: 'white'
     }
   }
 }
